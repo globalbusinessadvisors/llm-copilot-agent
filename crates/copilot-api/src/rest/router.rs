@@ -14,10 +14,8 @@ use std::{sync::Arc, time::Duration};
 use tower::ServiceBuilder;
 use tower_http::{
     cors::CorsLayer,
-    trace::{DefaultMakeSpan, DefaultOnResponse, TraceLayer},
-    LatencyUnit, ServiceBuilderExt,
+    trace::TraceLayer,
 };
-use tracing::Level;
 
 /// Create the main API router
 pub fn create_router(state: AppState) -> Router {
@@ -54,17 +52,8 @@ pub fn create_router(state: AppState) -> Router {
     Router::new()
         .nest("/api/v1", api_v1)
         .merge(health_routes)
-        .layer(
-            ServiceBuilder::new()
-                .layer(error_handling_layer())
-                .layer(cors_layer())
-                .layer(tracing_layer())
-                .layer(
-                    tower::ServiceBuilder::new()
-                        .timeout(Duration::from_secs(30))
-                        .compression(),
-                ),
-        )
+        .layer(cors_layer())
+        .layer(TraceLayer::new_for_http())
         .with_state(state)
 }
 
@@ -92,51 +81,6 @@ fn cors_layer() -> CorsLayer {
         ])
         .allow_credentials(true)
         .max_age(Duration::from_secs(3600))
-}
-
-/// Configure tracing layer
-fn tracing_layer() -> TraceLayer {
-    TraceLayer::new_for_http()
-        .make_span_with(
-            DefaultMakeSpan::new()
-                .level(Level::INFO)
-                .include_headers(true),
-        )
-        .on_response(
-            DefaultOnResponse::new()
-                .level(Level::INFO)
-                .latency_unit(LatencyUnit::Millis),
-        )
-}
-
-/// Configure error handling layer
-fn error_handling_layer() -> axum_middleware::HandleErrorLayer<
-    impl Fn(tower::BoxError) -> std::result::Result<axum::response::Response, std::convert::Infallible> + Clone,
-> {
-    use axum::response::{IntoResponse, Response};
-    use tower::BoxError;
-
-    tower::ServiceBuilder::new().layer(axum_middleware::HandleErrorLayer::new(
-        |error: BoxError| async move {
-            if error.is::<tower::timeout::error::Elapsed>() {
-                Ok::<Response, std::convert::Infallible>(
-                    (
-                        axum::http::StatusCode::REQUEST_TIMEOUT,
-                        "Request timeout",
-                    )
-                        .into_response(),
-                )
-            } else {
-                Ok::<Response, std::convert::Infallible>(
-                    (
-                        axum::http::StatusCode::INTERNAL_SERVER_ERROR,
-                        format!("Unhandled error: {}", error),
-                    )
-                        .into_response(),
-                )
-            }
-        },
-    ))
 }
 
 #[cfg(test)]

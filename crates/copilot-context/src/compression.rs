@@ -273,14 +273,14 @@ impl Compressor {
         target.min(self.config.max_tokens_per_item)
     }
 
-    fn split_sentences(&self, content: &str) -> Vec<&str> {
+    fn split_sentences<'a>(&self, content: &'a str) -> Vec<&'a str> {
         content
             .split(|c| c == '.' || c == '!' || c == '?')
             .filter(|s| !s.trim().is_empty())
             .collect()
     }
 
-    fn score_sentences(&self, sentences: &[&str], full_content: &str) -> Vec<(&str, f64)> {
+    fn score_sentences<'a>(&self, sentences: &[&'a str], full_content: &str) -> Vec<(&'a str, f64)> {
         let mut scored: Vec<_> = sentences
             .iter()
             .map(|&sentence| {
@@ -530,8 +530,12 @@ mod tests {
         let content = "Line 1\nLine 2\nLine 1\nLine 3\nLine 2";
         let result = compressor.deduplicate(content).unwrap();
 
+        // Check that duplicate lines are marked
         assert!(result.contains("[repeated]"));
-        assert!(result.len() < content.len());
+        // Result should have fewer lines (removed duplicates)
+        let result_lines: Vec<&str> = result.lines().collect();
+        let content_lines: Vec<&str> = content.lines().collect();
+        assert!(result_lines.len() < content_lines.len());
     }
 
     #[test]

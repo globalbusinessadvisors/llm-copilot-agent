@@ -1,0 +1,49 @@
+[package]
+name = "copilot-security"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+description = "Security, authentication, and authorization for LLM CoPilot Agent"
+
+[dependencies]
+# Internal crates
+copilot-core = { path = "../copilot-core" }
+
+# Async runtime
+tokio = { workspace = true }
+async-trait = { workspace = true }
+
+# JWT and authentication
+jsonwebtoken = "9.2"
+bcrypt = "0.15"
+argon2 = "0.5"
+
+# Serialization
+serde = { workspace = true }
+serde_json = { workspace = true }
+
+# Error handling
+thiserror = { workspace = true }
+anyhow = { workspace = true }
+
+# Utilities
+uuid = { workspace = true }
+chrono = { workspace = true }
+rand = { workspace = true }
+base64 = { workspace = true }
+sha2 = { workspace = true }
+hmac = { workspace = true }
+hex = "0.4"
+
+# Logging
+tracing = { workspace = true }
+
+# Validation
+validator = { workspace = true }
+
+# Rate limiting
+governor = "0.6"
+
+[dev-dependencies]
+tokio = { workspace = true, features = ["rt-multi-thread", "macros"] }

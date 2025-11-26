@@ -2,6 +2,8 @@ pub mod database;
 pub mod cache;
 pub mod messaging;
 pub mod health;
+pub mod resilience;
+pub mod metrics;
 
 pub use database::{
     pool::{create_pool, PgPoolConfig},
@@ -12,11 +14,26 @@ pub use database::{
 };
 
 pub use cache::redis::{RedisCache, RedisCacheConfig};
+pub use cache::memory::{MemoryCache, MemoryCacheConfig};
+pub use cache::response::{CachedResponse, ResponseCacheConfig, CacheKeyBuilder, CacheControl, ResponseCache};
 
 pub use messaging::nats::{NatsPublisher, NatsConfig, NatsSubscriber};
 
 pub use health::{
     DatabaseHealthCheck, RedisHealthCheck, NatsHealthCheck, CompositeHealthChecker, HealthStatus,
+};
+
+pub use resilience::{
+    CircuitBreaker, CircuitBreakerConfig, CircuitBreakerState,
+    RetryPolicy, RetryConfig, ExponentialBackoff, FixedDelay,
+    Bulkhead, BulkheadConfig,
+    TimeoutPolicy, TimeoutError,
+    ResilienceBuilder, ResilienceError,
+};
+
+pub use metrics::{
+    PrometheusMetrics, MetricsConfig, MetricsHandle, HttpMetrics, DatabaseMetrics,
+    CacheMetrics, CircuitBreakerMetrics, MetricsCollector, SystemMetrics,
 };
 
 #[derive(Debug, thiserror::Error)]

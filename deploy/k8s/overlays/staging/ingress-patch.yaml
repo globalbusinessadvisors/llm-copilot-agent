@@ -1,0 +1,20 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: copilot-server
+spec:
+  tls:
+    - hosts:
+        - staging.copilot.example.com
+      secretName: copilot-staging-tls
+  rules:
+    - host: staging.copilot.example.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: copilot-server
+                port:
+                  name: http

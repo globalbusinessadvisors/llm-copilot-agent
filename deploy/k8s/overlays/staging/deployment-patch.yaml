@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: copilot-server
+spec:
+  template:
+    spec:
+      containers:
+        - name: copilot-server
+          resources:
+            requests:
+              cpu: "200m"
+              memory: "256Mi"
+            limits:
+              cpu: "1000m"
+              memory: "1Gi"
+          env:
+            - name: RUST_LOG
+              value: "info,copilot=debug"

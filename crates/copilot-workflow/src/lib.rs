@@ -7,18 +7,30 @@
 //! - State management and persistence
 //! - Retry logic with exponential backoff
 //! - Real-time workflow status tracking
+//! - Workflow versioning and rollback
+//! - Scheduled workflow execution
+//! - Event-driven workflow triggers
+//! - Workflow templates library
 
 pub mod approval;
 pub mod dag;
 pub mod engine;
 pub mod execution;
 pub mod step;
+pub mod versioning;
+pub mod scheduling;
+pub mod triggers;
+pub mod templates;
 
 pub use approval::{ApprovalGate, ApprovalRequest, ApprovalStatus};
 pub use dag::{WorkflowDag, DagValidationError};
 pub use engine::{WorkflowEngine, WorkflowDefinition, WorkflowStatus, WorkflowState};
 pub use execution::{ExecutionContext, StepExecutor, RetryConfig};
 pub use step::{WorkflowStep, StepType, StepState, StepResult, StepAction};
+pub use versioning::{WorkflowVersion, VersionManager, VersionBump, VersionRepository};
+pub use scheduling::{Schedule, ScheduledWorkflow, WorkflowScheduler, ScheduleRepository};
+pub use triggers::{TriggerEvent, TriggerCondition, WorkflowTrigger, TriggerManager, EventBus, EventSource};
+pub use templates::{WorkflowTemplate, TemplateParameter, TemplateLibrary, TemplateBuilders};
 
 use thiserror::Error;
 
@@ -61,7 +73,7 @@ pub enum WorkflowError {
     Serialization(#[from] serde_json::Error),
 
     #[error("Core error: {0}")]
-    Core(#[from] copilot_core::Error),
+    Core(#[from] copilot_core::AppError),
 }
 
 pub type Result<T> = std::result::Result<T, WorkflowError>;

@@ -1,5 +1,6 @@
 use async_nats::{Client, ConnectOptions, Message, Subscriber};
 use async_trait::async_trait;
+use futures::StreamExt;
 use serde::{Deserialize, Serialize};
 use std::time::Duration;
 use tracing::{debug, info, warn, error};
@@ -81,9 +82,8 @@ impl NatsPublisher {
             options = options.name(name);
         }
 
-        if let Some(max) = config.max_reconnects {
-            options = options.max_reconnects(max);
-        }
+        // Note: max_reconnects is configured via retry_on_initial_connect in newer async_nats
+        // The reconnection behavior is now automatic with exponential backoff
 
         let client = options
             .connect(&config.url)
@@ -254,7 +254,7 @@ impl NatsSubscriber {
         &self.subject
     }
 
-    pub async fn unsubscribe(self) -> Result<()> {
+    pub async fn unsubscribe(mut self) -> Result<()> {
         info!("Unsubscribing from subject: {}", self.subject);
 
         self.subscriber

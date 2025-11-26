@@ -29,12 +29,14 @@
 
 pub mod engine;
 pub mod entity;
+pub mod error;
 pub mod intent;
 pub mod query;
 
 use async_trait::async_trait;
-use copilot_core::error::Result;
 use serde::{Deserialize, Serialize};
+
+pub use error::{NlpError, Result};
 use std::collections::HashMap;
 
 pub use engine::NlpEngineImpl;

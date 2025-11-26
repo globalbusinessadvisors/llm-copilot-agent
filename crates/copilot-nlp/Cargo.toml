@@ -1,20 +1,20 @@
 [package]
 name = "copilot-nlp"
-version = "0.1.0"
-edition = "2021"
+version.workspace = true
+edition.workspace = true
 authors = ["LLM CoPilot Agent Team"]
 description = "Natural Language Processing engine for LLM CoPilot Agent"
 license = "MIT OR Apache-2.0"
 
 [dependencies]
-copilot-core = { path = "../copilot-core" }
-async-trait = "0.1"
-tokio = { version = "1.0", features = ["full"] }
-serde = { version = "1.0", features = ["derive"] }
-regex = "1.10"
-lazy_static = "1.4"
-tracing = "0.1"
-thiserror = "1.0"
+copilot-core.workspace = true
+async-trait.workspace = true
+tokio = { workspace = true, features = ["full"] }
+serde = { workspace = true, features = ["derive"] }
+regex.workspace = true
+lazy_static.workspace = true
+tracing.workspace = true
+thiserror.workspace = true
 
 [dev-dependencies]
 tokio-test = "0.4"

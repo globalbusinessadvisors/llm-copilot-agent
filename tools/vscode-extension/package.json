@@ -1,0 +1,252 @@
+{
+  "name": "llm-copilot",
+  "displayName": "LLM CoPilot",
+  "description": "AI-powered code assistant for VS Code",
+  "version": "1.0.0",
+  "publisher": "llm-copilot",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/llm-copilot-agent/vscode-extension"
+  },
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Programming Languages",
+    "Snippets",
+    "Other"
+  ],
+  "keywords": [
+    "ai",
+    "copilot",
+    "code assistant",
+    "llm",
+    "claude",
+    "gpt"
+  ],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "llmCopilot.startChat",
+        "title": "Start Chat",
+        "category": "LLM CoPilot",
+        "icon": "$(comment-discussion)"
+      },
+      {
+        "command": "llmCopilot.explainCode",
+        "title": "Explain Selected Code",
+        "category": "LLM CoPilot",
+        "icon": "$(question)"
+      },
+      {
+        "command": "llmCopilot.refactorCode",
+        "title": "Refactor Selected Code",
+        "category": "LLM CoPilot",
+        "icon": "$(edit)"
+      },
+      {
+        "command": "llmCopilot.generateTests",
+        "title": "Generate Tests for Selected Code",
+        "category": "LLM CoPilot",
+        "icon": "$(beaker)"
+      },
+      {
+        "command": "llmCopilot.addDocumentation",
+        "title": "Add Documentation to Selected Code",
+        "category": "LLM CoPilot",
+        "icon": "$(book)"
+      },
+      {
+        "command": "llmCopilot.findBugs",
+        "title": "Find Bugs in Selected Code",
+        "category": "LLM CoPilot",
+        "icon": "$(bug)"
+      },
+      {
+        "command": "llmCopilot.configure",
+        "title": "Configure Settings",
+        "category": "LLM CoPilot",
+        "icon": "$(gear)"
+      },
+      {
+        "command": "llmCopilot.showHistory",
+        "title": "Show Conversation History",
+        "category": "LLM CoPilot",
+        "icon": "$(history)"
+      }
+    ],
+    "menus": {
+      "editor/context": [
+        {
+          "submenu": "llmCopilot.submenu",
+          "group": "llmCopilot@1",
+          "when": "editorHasSelection"
+        }
+      ],
+      "llmCopilot.submenu": [
+        {
+          "command": "llmCopilot.explainCode",
+          "group": "1_analysis@1"
+        },
+        {
+          "command": "llmCopilot.findBugs",
+          "group": "1_analysis@2"
+        },
+        {
+          "command": "llmCopilot.refactorCode",
+          "group": "2_modify@1"
+        },
+        {
+          "command": "llmCopilot.addDocumentation",
+          "group": "2_modify@2"
+        },
+        {
+          "command": "llmCopilot.generateTests",
+          "group": "3_generate@1"
+        }
+      ],
+      "commandPalette": [
+        {
+          "command": "llmCopilot.explainCode",
+          "when": "editorHasSelection"
+        },
+        {
+          "command": "llmCopilot.refactorCode",
+          "when": "editorHasSelection"
+        },
+        {
+          "command": "llmCopilot.generateTests",
+          "when": "editorHasSelection"
+        },
+        {
+          "command": "llmCopilot.addDocumentation",
+          "when": "editorHasSelection"
+        },
+        {
+          "command": "llmCopilot.findBugs",
+          "when": "editorHasSelection"
+        }
+      ]
+    },
+    "submenus": [
+      {
+        "id": "llmCopilot.submenu",
+        "label": "LLM CoPilot",
+        "icon": "$(hubot)"
+      }
+    ],
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "llmCopilot",
+          "title": "LLM CoPilot",
+          "icon": "$(hubot)"
+        }
+      ]
+    },
+    "views": {
+      "llmCopilot": [
+        {
+          "type": "webview",
+          "id": "llmCopilot.chat",
+          "name": "Chat"
+        },
+        {
+          "id": "llmCopilot.history",
+          "name": "History"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "LLM CoPilot",
+      "properties": {
+        "llmCopilot.serverUrl": {
+          "type": "string",
+          "default": "http://localhost:8080",
+          "description": "URL of the LLM CoPilot API server"
+        },
+        "llmCopilot.apiKey": {
+          "type": "string",
+          "default": "",
+          "description": "API key for authentication"
+        },
+        "llmCopilot.defaultModel": {
+          "type": "string",
+          "default": "claude-3-sonnet",
+          "enum": [
+            "claude-3-opus",
+            "claude-3-sonnet",
+            "claude-3-haiku",
+            "gpt-4-turbo",
+            "gpt-4",
+            "gpt-3.5-turbo"
+          ],
+          "description": "Default AI model to use"
+        },
+        "llmCopilot.enableInlineCompletion": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable inline code completion suggestions"
+        },
+        "llmCopilot.maxTokens": {
+          "type": "number",
+          "default": 2048,
+          "description": "Maximum tokens for generated responses"
+        },
+        "llmCopilot.temperature": {
+          "type": "number",
+          "default": 0.7,
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Sampling temperature (0-1)"
+        },
+        "llmCopilot.includeFileContext": {
+          "type": "boolean",
+          "default": true,
+          "description": "Include current file as context in requests"
+        },
+        "llmCopilot.includeProjectContext": {
+          "type": "boolean",
+          "default": false,
+          "description": "Include relevant project files as context"
+        }
+      }
+    },
+    "keybindings": [
+      {
+        "command": "llmCopilot.startChat",
+        "key": "ctrl+shift+c",
+        "mac": "cmd+shift+c"
+      },
+      {
+        "command": "llmCopilot.explainCode",
+        "key": "ctrl+shift+e",
+        "mac": "cmd+shift+e",
+        "when": "editorHasSelection"
+      }
+    ]
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "pretest": "npm run compile",
+    "test": "node ./out/test/runTest.js",
+    "lint": "eslint src --ext ts",
+    "package": "vsce package"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.5",
+    "@types/vscode": "^1.85.0",
+    "@typescript-eslint/eslint-plugin": "^6.15.0",
+    "@typescript-eslint/parser": "^6.15.0",
+    "eslint": "^8.56.0",
+    "typescript": "^5.3.3",
+    "@vscode/vsce": "^2.22.0"
+  },
+  "dependencies": {}
+}

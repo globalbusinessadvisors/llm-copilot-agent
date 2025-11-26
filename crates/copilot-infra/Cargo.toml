@@ -1,37 +1,45 @@
 [package]
 name = "copilot-infra"
-version = "0.1.0"
-edition = "2021"
+version.workspace = true
+edition.workspace = true
 
 [dependencies]
 copilot-core = { path = "../copilot-core" }
 
 # Database
-sqlx = { version = "0.7", features = ["runtime-tokio-rustls", "postgres", "uuid", "chrono", "json"] }
+sqlx = { workspace = true }
 
 # Cache
-redis = { version = "0.24", features = ["tokio-comp", "connection-manager"] }
+redis = { workspace = true }
 
 # Messaging
 async-nats = "0.33"
 
 # Async runtime
-tokio = { version = "1.35", features = ["full"] }
-async-trait = "0.1"
+tokio = { workspace = true }
+async-trait = { workspace = true }
+futures = { workspace = true }
 
 # Serialization
-serde = { version = "1.0", features = ["derive"] }
-serde_json = "1.0"
+serde = { workspace = true }
+serde_json = { workspace = true }
 
 # Logging
-tracing = "0.1"
+tracing = { workspace = true }
 
 # Error handling
-thiserror = "1.0"
-anyhow = "1.0"
+thiserror = { workspace = true }
+anyhow = { workspace = true }
 
 # UUID
-uuid = { version = "1.6", features = ["v4", "serde"] }
+uuid = { workspace = true }
 
 # Time
-chrono = { version = "0.4", features = ["serde"] }
+chrono = { workspace = true }
+
+# Random
+rand = { workspace = true }
+
+# Hashing
+sha2 = { workspace = true }
+hex = "0.4"

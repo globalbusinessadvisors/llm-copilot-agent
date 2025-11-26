@@ -1,0 +1,53 @@
+[package]
+name = "copilot-cli"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+description = "Command-line interface for LLM CoPilot Agent"
+
+[[bin]]
+name = "copilot"
+path = "src/main.rs"
+
+[dependencies]
+copilot-sdk = { path = "../../crates/copilot-sdk" }
+copilot-core = { path = "../../crates/copilot-core" }
+
+# CLI framework
+clap = { workspace = true }
+clap_complete = "4.4"
+
+# Async runtime
+tokio = { workspace = true }
+
+# Serialization
+serde = { workspace = true }
+serde_json = { workspace = true }
+serde_yaml = { workspace = true }
+
+# Error handling
+anyhow = { workspace = true }
+thiserror = { workspace = true }
+
+# Output formatting
+colored = "2.1"
+tabled = "0.15"
+indicatif = "0.17"
+dialoguer = "0.11"
+
+# Configuration
+config = { workspace = true }
+dotenv = { workspace = true }
+
+# Utilities
+chrono = { workspace = true }
+uuid = { workspace = true }
+dirs = "5.0"
+toml = { workspace = true }
+walkdir = "2.4"
+
+[dev-dependencies]
+assert_cmd = "2.0"
+predicates = "3.0"
+tempfile = "3.10"

@@ -1,0 +1,54 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: copilot-config
+  namespace: copilot
+  labels:
+    app.kubernetes.io/name: copilot-server
+    app.kubernetes.io/component: config
+    app.kubernetes.io/part-of: llm-copilot-agent
+data:
+  nats-url: "nats://nats.copilot.svc.cluster.local:4222"
+  log-level: "info"
+  enable-metrics: "true"
+  enable-tracing: "true"
+
+  # Application configuration
+  config.yaml: |
+    server:
+      http_port: 8080
+      grpc_port: 50051
+      metrics_port: 9090
+      graceful_shutdown_timeout: 30s
+
+    logging:
+      level: info
+      format: json
+
+    tracing:
+      enabled: true
+      service_name: copilot-server
+      sampling_rate: 0.1
+
+    metrics:
+      enabled: true
+      include_runtime: true
+
+    rate_limiting:
+      enabled: true
+      requests_per_second: 100
+      burst: 200
+
+    e2b:
+      enabled: true
+      default_template: python
+      max_sandboxes: 10
+      timeout_seconds: 300
+
+    conversation:
+      max_history_length: 100
+      session_timeout_minutes: 30
+
+    context:
+      max_context_size: 16384
+      relevance_threshold: 0.7

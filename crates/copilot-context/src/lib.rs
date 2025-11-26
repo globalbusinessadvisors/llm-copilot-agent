@@ -5,7 +5,9 @@
 
 pub mod compression;
 pub mod engine;
+pub mod hybrid_search;
 pub mod memory;
+pub mod reranking;
 pub mod retrieval;
 
 // Re-exports
@@ -13,6 +15,15 @@ pub use engine::{ContextEngine, ContextEngineImpl, ContextEngineConfig};
 pub use memory::{MemoryTier, MemoryItem, MemoryStore, MemoryMetadata};
 pub use retrieval::{RelevanceScorer, ContextWindow, RetrievalConfig};
 pub use compression::{CompressionStrategy, CompressionConfig, Compressor};
+pub use hybrid_search::{
+    HybridSearchEngine, HybridSearchConfig, HybridSearchResult,
+    EmbeddingProvider, BM25Scorer, SimilarityMetric, Embedding,
+    MockEmbeddingProvider, BM25Config,
+};
+pub use reranking::{
+    Reranker, RerankerConfig, CrossEncoderReranker,
+    RerankerResult, RerankerProvider,
+};
 
 /// Error types for context operations
 #[derive(Debug, thiserror::Error)]

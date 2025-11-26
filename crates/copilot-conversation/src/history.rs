@@ -146,7 +146,7 @@ impl HistoryManager {
         offset: usize,
         limit: usize,
     ) -> Result<Vec<ConversationMessage>> {
-        let messages = self.history
+        let messages: Vec<_> = self.history
             .get(session_id)
             .map(|msgs| {
                 msgs.iter()

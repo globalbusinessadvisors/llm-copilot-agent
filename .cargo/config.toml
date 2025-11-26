@@ -12,8 +12,7 @@ target-dir = "target"
 
 [target.x86_64-unknown-linux-gnu]
 # Linux-specific linker settings
-linker = "clang"
-rustflags = ["-C", "link-arg=-fuse-ld=lld"]
+# Use default linker for compatibility
 
 [target.x86_64-apple-darwin]
 # macOS x86_64-specific settings

@@ -156,11 +156,13 @@ mod tests {
     async fn test_retry_success_on_first_attempt() {
         let policy = RetryPolicy::new(3);
         let attempts = Arc::new(AtomicUsize::new(0));
-        let attempts_clone = attempts.clone();
 
-        let result = policy.execute(|| async move {
-            attempts_clone.fetch_add(1, Ordering::SeqCst);
-            Ok::<_, AdapterError>(42)
+        let result = policy.execute(|| {
+            let attempts = attempts.clone();
+            async move {
+                attempts.fetch_add(1, Ordering::SeqCst);
+                Ok::<_, AdapterError>(42)
+            }
         }).await;
 
         assert!(result.is_ok());
@@ -172,14 +174,16 @@ mod tests {
     async fn test_retry_success_on_second_attempt() {
         let policy = RetryPolicy::new(3);
         let attempts = Arc::new(AtomicUsize::new(0));
-        let attempts_clone = attempts.clone();
 
-        let result = policy.execute(|| async move {
-            let attempt = attempts_clone.fetch_add(1, Ordering::SeqCst);
-            if attempt == 0 {
-                Err(AdapterError::RequestFailed("First attempt failed".to_string()))
-            } else {
-                Ok(42)
+        let result = policy.execute(|| {
+            let attempts = attempts.clone();
+            async move {
+                let attempt = attempts.fetch_add(1, Ordering::SeqCst);
+                if attempt == 0 {
+                    Err(AdapterError::RequestFailed("First attempt failed".to_string()))
+                } else {
+                    Ok(42)
+                }
             }
         }).await;
 
@@ -192,11 +196,13 @@ mod tests {
     async fn test_retry_exhausted() {
         let policy = RetryPolicy::new(3);
         let attempts = Arc::new(AtomicUsize::new(0));
-        let attempts_clone = attempts.clone();
 
-        let result = policy.execute(|| async move {
-            attempts_clone.fetch_add(1, Ordering::SeqCst);
-            Err::<i32, _>(AdapterError::RequestFailed("Always fails".to_string()))
+        let result = policy.execute(|| {
+            let attempts = attempts.clone();
+            async move {
+                attempts.fetch_add(1, Ordering::SeqCst);
+                Err::<i32, _>(AdapterError::RequestFailed("Always fails".to_string()))
+            }
         }).await;
 
         assert!(result.is_err());
@@ -207,11 +213,13 @@ mod tests {
     async fn test_non_retryable_error() {
         let policy = RetryPolicy::new(3);
         let attempts = Arc::new(AtomicUsize::new(0));
-        let attempts_clone = attempts.clone();
 
-        let result = policy.execute(|| async move {
-            attempts_clone.fetch_add(1, Ordering::SeqCst);
-            Err::<i32, _>(AdapterError::CircuitBreakerOpen)
+        let result = policy.execute(|| {
+            let attempts = attempts.clone();
+            async move {
+                attempts.fetch_add(1, Ordering::SeqCst);
+                Err::<i32, _>(AdapterError::CircuitBreakerOpen)
+            }
         }).await;
 
         assert!(result.is_err());

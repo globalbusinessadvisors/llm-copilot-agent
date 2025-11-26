@@ -175,10 +175,9 @@ impl PartialOrd for ScoredItem {
 
 impl Ord for ScoredItem {
     fn cmp(&self, other: &Self) -> Ordering {
-        // Reverse order for max-heap
-        other
-            .score
-            .partial_cmp(&self.score)
+        // Standard ordering for max-heap (BinaryHeap pops largest first)
+        self.score
+            .partial_cmp(&other.score)
             .unwrap_or(Ordering::Equal)
     }
 }

@@ -1,0 +1,48 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: copilot-server
+  namespace: copilot
+  labels:
+    app.kubernetes.io/name: copilot-server
+    app.kubernetes.io/component: server
+    app.kubernetes.io/part-of: llm-copilot-agent
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: copilot-server
+  ports:
+    - name: http
+      port: 80
+      targetPort: http
+      protocol: TCP
+    - name: grpc
+      port: 50051
+      targetPort: grpc
+      protocol: TCP
+    - name: metrics
+      port: 9090
+      targetPort: metrics
+      protocol: TCP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: copilot-server-headless
+  namespace: copilot
+  labels:
+    app.kubernetes.io/name: copilot-server
+    app.kubernetes.io/component: server
+    app.kubernetes.io/part-of: llm-copilot-agent
+spec:
+  type: ClusterIP
+  clusterIP: None
+  selector:
+    app.kubernetes.io/name: copilot-server
+  ports:
+    - name: http
+      port: 8080
+      targetPort: http
+    - name: grpc
+      port: 50051
+      targetPort: grpc

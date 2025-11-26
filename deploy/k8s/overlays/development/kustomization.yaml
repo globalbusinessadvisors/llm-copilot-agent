@@ -1,0 +1,38 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+metadata:
+  name: copilot-development
+
+namespace: copilot-dev
+
+resources:
+  - ../../base
+
+namePrefix: dev-
+
+commonLabels:
+  environment: development
+
+commonAnnotations:
+  app.kubernetes.io/environment: development
+
+replicas:
+  - name: copilot-server
+    count: 1
+
+images:
+  - name: llm-copilot-agent
+    newName: ghcr.io/llm-copilot-agent/copilot-server
+    newTag: dev
+
+patches:
+  - path: deployment-patch.yaml
+
+configMapGenerator:
+  - name: copilot-config
+    behavior: merge
+    literals:
+      - log-level=debug
+      - enable-metrics=true
+      - enable-tracing=true

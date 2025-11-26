@@ -1,0 +1,36 @@
+[package]
+name = "copilot-e2b"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+description = "E2B integration for autonomous agent execution in LLM CoPilot Agent"
+
+[dependencies]
+copilot-core = { path = "../copilot-core" }
+
+# Async runtime
+tokio = { workspace = true }
+async-trait = { workspace = true }
+futures = { workspace = true }
+
+# Serialization
+serde = { workspace = true }
+serde_json = { workspace = true }
+
+# Logging
+tracing = { workspace = true }
+
+# Error handling
+thiserror = { workspace = true }
+anyhow = { workspace = true }
+
+# Utilities
+uuid = { workspace = true }
+chrono = { workspace = true }
+
+# HTTP client for E2B API calls
+reqwest = { workspace = true }
+
+[dev-dependencies]
+tokio-test = "0.4"

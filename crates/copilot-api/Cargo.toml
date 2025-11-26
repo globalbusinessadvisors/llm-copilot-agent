@@ -11,32 +11,33 @@ copilot-core = { path = "../copilot-core" }
 copilot-conversation = { path = "../copilot-conversation" }
 
 # Web framework
-axum = { version = "0.7", features = ["ws", "macros"] }
-tower = "0.4"
-tower-http = { version = "0.5", features = ["trace", "cors", "request-id", "util"] }
+axum = { workspace = true }
+tower = { workspace = true }
+tower-http = { workspace = true }
+axum-extra = { workspace = true }
 
 # Async runtime
-tokio = { version = "1.40", features = ["full"] }
+tokio = { workspace = true }
 tokio-stream = "0.1"
 
 # Serialization
-serde = { version = "1.0", features = ["derive"] }
-serde_json = "1.0"
+serde = { workspace = true }
+serde_json = { workspace = true }
 
 # gRPC
-tonic = "0.12"
-prost = "0.13"
+tonic = { workspace = true }
+prost = { workspace = true }
 
 # Async traits
-async-trait = "0.1"
-futures = "0.3"
+async-trait = { workspace = true }
+futures = { workspace = true }
 
 # Logging and tracing
-tracing = "0.1"
+tracing = { workspace = true }
 
 # Error handling
-thiserror = "1.0"
-anyhow = "1.0"
+thiserror = { workspace = true }
+anyhow = { workspace = true }
 
 # Authentication
 jsonwebtoken = "9.3"
@@ -44,26 +45,26 @@ jsonwebtoken = "9.3"
 # Rate limiting
 governor = "0.6"
 
+# Utilities
+lazy_static = { workspace = true }
+
 # UUID generation
-uuid = { version = "1.10", features = ["v4", "serde"] }
+uuid = { workspace = true }
 
 # Time handling
-chrono = { version = "0.4", features = ["serde"] }
+chrono = { workspace = true }
 
 # HTTP types
 http = "1.1"
 http-body-util = "0.1"
 
-# WebSocket
-axum-extra = { version = "0.9", features = ["typed-header"] }
-
 [build-dependencies]
-tonic-build = "0.12"
+tonic-build = "0.11"
 
 [dev-dependencies]
 tokio-test = "0.4"
-tower = { version = "0.4", features = ["util"] }
-hyper = { version = "1.4", features = ["full"] }
+tower = { workspace = true }
+hyper = { workspace = true }
 
 [features]
 default = ["rest", "websocket", "grpc"]

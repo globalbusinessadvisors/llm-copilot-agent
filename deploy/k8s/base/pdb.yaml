@@ -1,0 +1,14 @@
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: copilot-server
+  namespace: copilot
+  labels:
+    app.kubernetes.io/name: copilot-server
+    app.kubernetes.io/component: server
+    app.kubernetes.io/part-of: llm-copilot-agent
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: copilot-server

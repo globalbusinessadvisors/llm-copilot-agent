@@ -99,16 +99,14 @@ impl CircuitBreaker {
         let result = f().await;
 
         // Update state based on result
-        match result {
-            Ok(ref value) => {
+        match &result {
+            Ok(_) => {
                 self.record_success().await;
-                Ok(())
             }
-            Err(ref e) => {
+            Err(_) => {
                 self.record_failure().await;
-                Err(())
             }
-        }?;
+        }
 
         result
     }

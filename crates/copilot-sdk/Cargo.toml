@@ -1,0 +1,39 @@
+[package]
+name = "copilot-sdk"
+version = "0.1.0"
+edition = "2021"
+description = "Rust SDK for the LLM CoPilot Agent platform"
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/your-org/llm-copilot-agent"
+documentation = "https://docs.rs/copilot-sdk"
+keywords = ["llm", "ai", "copilot", "sdk", "client"]
+categories = ["api-bindings", "development-tools"]
+
+[dependencies]
+# HTTP client
+reqwest = { version = "0.11", features = ["json", "stream"] }
+
+# Async runtime
+tokio = { workspace = true }
+tokio-stream = "0.1"
+futures = "0.3"
+
+# Serialization
+serde = { workspace = true }
+serde_json = { workspace = true }
+
+# Error handling
+thiserror = { workspace = true }
+anyhow = { workspace = true }
+
+# Utilities
+url = "2.5"
+secrecy = { version = "0.8", features = ["serde"] }
+tracing = { workspace = true }
+
+# Event streaming
+eventsource-stream = "0.2"
+
+[dev-dependencies]
+tokio = { workspace = true, features = ["rt-multi-thread", "macros"] }
+wiremock = "0.5"

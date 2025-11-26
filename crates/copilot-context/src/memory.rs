@@ -295,7 +295,7 @@ impl ImportanceScorer {
         has_code: bool,
         has_error: bool,
     ) -> f64 {
-        let mut score = match role {
+        let mut score: f64 = match role {
             "user" => 0.7,
             "assistant" => 0.6,
             "system" => 0.5,

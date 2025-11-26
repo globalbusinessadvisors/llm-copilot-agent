@@ -1,0 +1,47 @@
+[package]
+name = "copilot-ingestion"
+version.workspace = true
+edition.workspace = true
+description = "Document ingestion pipeline for LLM-CoPilot-Agent"
+
+[dependencies]
+# Core dependencies
+copilot-core = { path = "../copilot-core" }
+copilot-context = { path = "../copilot-context" }
+
+# Async runtime
+tokio = { workspace = true, features = ["sync", "fs", "io-util"] }
+async-trait = { workspace = true }
+futures = { workspace = true }
+
+# Serialization
+serde = { workspace = true }
+serde_json = { workspace = true }
+
+# Logging
+tracing = { workspace = true }
+
+# Utilities
+chrono = { workspace = true }
+uuid = { workspace = true }
+thiserror = { workspace = true }
+anyhow = { workspace = true }
+
+# File handling
+mime_guess = "2.0"
+
+# Text extraction
+encoding_rs = "0.8"
+
+# Hashing for deduplication
+sha2 = "0.10"
+hex = "0.4"
+
+# Chunking
+tiktoken-rs = "0.5"
+
+[dev-dependencies]
+tokio-test = "0.4"
+tempfile = "3.10"
+pretty_assertions = "1.4"
+tracing-subscriber = { workspace = true }

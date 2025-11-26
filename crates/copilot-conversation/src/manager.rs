@@ -55,8 +55,8 @@ pub struct ResolvedReference {
 
 /// Main conversation manager
 pub struct ConversationManager {
-    nlp_engine: Arc<NlpEngine>,
-    context_engine: Arc<ContextEngine>,
+    nlp_engine: Arc<dyn NlpEngine>,
+    context_engine: Arc<dyn ContextEngine>,
     session_manager: Arc<RwLock<SessionManager>>,
     history_manager: Arc<RwLock<HistoryManager>>,
 }
@@ -68,7 +68,7 @@ impl ConversationManager {
     ///
     /// * `nlp_engine` - NLP engine for language processing
     /// * `context_engine` - Context engine for maintaining conversation context
-    pub fn new(nlp_engine: Arc<NlpEngine>, context_engine: Arc<ContextEngine>) -> Self {
+    pub fn new(nlp_engine: Arc<dyn NlpEngine>, context_engine: Arc<dyn ContextEngine>) -> Self {
         Self {
             nlp_engine,
             context_engine,
@@ -181,21 +181,22 @@ impl ConversationManager {
 
         // Use NLP engine to analyze intent
         let intent = self.nlp_engine
-            .analyze_intent(message)
+            .classify_intent(message)
+            .await
             .map_err(|e| ConversationError::NlpError(e.to_string()))?;
 
         debug!("Detected intent: {:?}", intent);
 
         // Use context engine to enhance understanding
         let context_data = self.context_engine
-            .get_context(session_id)
+            .retrieve(session_id)
             .await
             .map_err(|e| ConversationError::ContextError(e.to_string()))?;
 
         // Generate response based on intent and context
         // In a real implementation, this would call an LLM
         let response = format!(
-            "I understand you're asking about: {}. Based on our conversation context, I can help with that.",
+            "I understand you're asking about: {:?}. Based on our conversation context, I can help with that.",
             intent
         );
 
@@ -214,11 +215,12 @@ impl ConversationManager {
         info!("Creating streaming response for session: {}", request.session_id);
 
         // Validate session exists
-        let session_mgr = self.session_manager.read().await;
-        let _session = session_mgr
-            .get_session(&request.session_id)
-            .ok_or_else(|| ConversationError::SessionNotFound(request.session_id.clone()))?;
-        drop(session_mgr);
+        {
+            let mut session_mgr = self.session_manager.write().await;
+            let _session = session_mgr
+                .get_session(&request.session_id)
+                .ok_or_else(|| ConversationError::SessionNotFound(request.session_id.clone()))?;
+        }
 
         // Create streaming response
         let streaming_response = StreamingResponse::new(

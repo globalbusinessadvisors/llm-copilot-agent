@@ -157,13 +157,13 @@ impl WorkflowDag {
         None
     }
 
-    /// Get steps in topological order
+    /// Get steps in topological order (execution order: dependencies before dependents)
     pub fn topological_sort(&self) -> Vec<String> {
-        let mut topo = petgraph::algo::toposort(&self.graph, None)
+        let topo = petgraph::algo::toposort(&self.graph, None)
             .expect("DAG should be validated");
 
-        topo.reverse(); // Reverse to get execution order
-
+        // petgraph's toposort returns nodes in topological order
+        // (dependencies before dependents for directed graphs with edges pointing forward)
         topo.into_iter()
             .map(|node| self.node_to_step[&node].clone())
             .collect()
@@ -377,9 +377,19 @@ mod tests {
         let dag = WorkflowDag::new(steps).unwrap();
         let sorted = dag.topological_sort();
 
-        assert_eq!(sorted[0], "step1");
-        assert_eq!(sorted[1], "step2");
-        assert_eq!(sorted[2], "step3");
+        // Verify the result contains all steps
+        assert_eq!(sorted.len(), 3);
+        assert!(sorted.contains(&"step1".to_string()));
+        assert!(sorted.contains(&"step2".to_string()));
+        assert!(sorted.contains(&"step3".to_string()));
+
+        // Verify that dependencies come before dependents
+        let step1_pos = sorted.iter().position(|s| s == "step1").unwrap();
+        let step2_pos = sorted.iter().position(|s| s == "step2").unwrap();
+        let step3_pos = sorted.iter().position(|s| s == "step3").unwrap();
+
+        assert!(step1_pos < step2_pos, "step1 should come before step2");
+        assert!(step2_pos < step3_pos, "step2 should come before step3");
     }
 
     #[test]

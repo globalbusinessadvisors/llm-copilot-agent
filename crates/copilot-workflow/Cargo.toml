@@ -1,22 +1,23 @@
 [package]
 name = "copilot-workflow"
-version = "0.1.0"
-edition = "2021"
-authors = ["LLM CoPilot Agent Team"]
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
 description = "Workflow engine for LLM CoPilot Agent with DAG execution, approval gates, and state management"
 license = "MIT OR Apache-2.0"
 
 [dependencies]
 copilot-core = { path = "../copilot-core" }
-async-trait = "0.1"
-tokio = { version = "1.0", features = ["full"] }
-serde = { version = "1.0", features = ["derive"] }
-serde_json = "1.0"
-tracing = "0.1"
+async-trait = { workspace = true }
+tokio = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+tracing = { workspace = true }
 petgraph = "0.6"
-uuid = { version = "1.0", features = ["v4", "serde"] }
-thiserror = "1.0"
-chrono = { version = "0.4", features = ["serde"] }
+uuid = { workspace = true }
+thiserror = { workspace = true }
+chrono = { workspace = true }
+regex = { workspace = true }
 
 [dev-dependencies]
 tokio-test = "0.4"

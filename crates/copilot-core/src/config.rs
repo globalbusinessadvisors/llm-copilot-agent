@@ -1,9 +1,9 @@
 use config::{Config, ConfigError, Environment, File};
-use secrecy::{ExposeSecret, Secret};
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
 use std::time::Duration;
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+/// Main application configuration
+#[derive(Debug, Clone, Deserialize)]
 pub struct AppConfig {
     pub database: DatabaseConfig,
     pub redis: RedisConfig,
@@ -13,10 +13,12 @@ pub struct AppConfig {
 }
 
 impl AppConfig {
+    /// Load configuration from environment variables
     pub fn load() -> Result<Self, ConfigError> {
         Self::load_from_env("APP")
     }
 
+    /// Load configuration from environment with custom prefix
     pub fn load_from_env(prefix: &str) -> Result<Self, ConfigError> {
         let builder = Config::builder()
             .add_source(
@@ -24,12 +26,18 @@ impl AppConfig {
                     .separator("__")
                     .try_parsing(true),
             )
+            .set_default("database.url", "postgres://localhost/copilot")?
             .set_default("database.max_connections", 10)?
             .set_default("database.min_connections", 2)?
+            .set_default("redis.url", "redis://localhost")?
             .set_default("redis.max_connections", 10)?
+            .set_default("auth.jwt_secret", "development-secret-change-in-production")?
             .set_default("auth.token_expiry_seconds", 3600)?
             .set_default("auth.issuer", "llm-copilot-agent")?
             .set_default("auth.audience", "copilot-api")?
+            .set_default("llm.provider", "anthropic")?
+            .set_default("llm.model", "claude-3-sonnet-20240229")?
+            .set_default("llm.api_key", "")?
             .set_default("llm.max_tokens", 4096)?
             .set_default("llm.temperature", 0.7)?
             .set_default("server.host", "0.0.0.0")?
@@ -40,6 +48,7 @@ impl AppConfig {
         config.try_deserialize()
     }
 
+    /// Load configuration from file with environment overrides
     pub fn load_from_file(path: &str) -> Result<Self, ConfigError> {
         let builder = Config::builder()
             .add_source(File::with_name(path))
@@ -50,9 +59,10 @@ impl AppConfig {
     }
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+/// Database configuration
+#[derive(Debug, Clone, Deserialize)]
 pub struct DatabaseConfig {
-    pub url: Secret<String>,
+    pub url: String,
     #[serde(default = "default_max_connections")]
     pub max_connections: u32,
     #[serde(default = "default_min_connections")]
@@ -62,7 +72,7 @@ pub struct DatabaseConfig {
 impl DatabaseConfig {
     pub fn new(url: String) -> Self {
         Self {
-            url: Secret::new(url),
+            url,
             max_connections: default_max_connections(),
             min_connections: default_min_connections(),
         }
@@ -72,10 +82,6 @@ impl DatabaseConfig {
         self.min_connections = min;
         self.max_connections = max;
         self
-    }
-
-    pub fn url(&self) -> &str {
-        self.url.expose_secret()
     }
 }
 
@@ -87,9 +93,10 @@ fn default_min_connections() -> u32 {
     2
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+/// Redis configuration
+#[derive(Debug, Clone, Deserialize)]
 pub struct RedisConfig {
-    pub url: Secret<String>,
+    pub url: String,
     #[serde(default = "default_redis_max_connections")]
     pub max_connections: u32,
 }
@@ -97,7 +104,7 @@ pub struct RedisConfig {
 impl RedisConfig {
     pub fn new(url: String) -> Self {
         Self {
-            url: Secret::new(url),
+            url,
             max_connections: default_redis_max_connections(),
         }
     }
@@ -106,19 +113,16 @@ impl RedisConfig {
         self.max_connections = max;
         self
     }
-
-    pub fn url(&self) -> &str {
-        self.url.expose_secret()
-    }
 }
 
 fn default_redis_max_connections() -> u32 {
     10
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+/// Authentication configuration
+#[derive(Debug, Clone, Deserialize)]
 pub struct AuthConfig {
-    pub jwt_secret: Secret<String>,
+    pub jwt_secret: String,
     #[serde(default = "default_token_expiry_seconds")]
     pub token_expiry_seconds: u64,
     #[serde(default = "default_issuer")]
@@ -130,7 +134,7 @@ pub struct AuthConfig {
 impl AuthConfig {
     pub fn new(jwt_secret: String) -> Self {
         Self {
-            jwt_secret: Secret::new(jwt_secret),
+            jwt_secret,
             token_expiry_seconds: default_token_expiry_seconds(),
             issuer: default_issuer(),
             audience: default_audience(),
@@ -152,10 +156,6 @@ impl AuthConfig {
         self
     }
 
-    pub fn jwt_secret(&self) -> &str {
-        self.jwt_secret.expose_secret()
-    }
-
     pub fn token_expiry(&self) -> Duration {
         Duration::from_secs(self.token_expiry_seconds)
     }
@@ -173,15 +173,18 @@ fn default_audience() -> String {
     "copilot-api".to_string()
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+/// LLM provider configuration
+#[derive(Debug, Clone, Deserialize)]
 pub struct LlmConfig {
     pub provider: String,
     pub model: String,
-    pub api_key: Secret<String>,
+    pub api_key: String,
     #[serde(default = "default_max_tokens")]
     pub max_tokens: u32,
     #[serde(default = "default_temperature")]
     pub temperature: f32,
+    #[serde(default)]
+    pub base_url: Option<String>,
 }
 
 impl LlmConfig {
@@ -189,9 +192,10 @@ impl LlmConfig {
         Self {
             provider,
             model,
-            api_key: Secret::new(api_key),
+            api_key,
             max_tokens: default_max_tokens(),
             temperature: default_temperature(),
+            base_url: None,
         }
     }
 
@@ -205,8 +209,9 @@ impl LlmConfig {
         self
     }
 
-    pub fn api_key(&self) -> &str {
-        self.api_key.expose_secret()
+    pub fn with_base_url(mut self, base_url: String) -> Self {
+        self.base_url = Some(base_url);
+        self
     }
 }
 
@@ -218,7 +223,8 @@ fn default_temperature() -> f32 {
     0.7
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+/// Server configuration
+#[derive(Debug, Clone, Deserialize)]
 pub struct ServerConfig {
     #[serde(default = "default_host")]
     pub host: String,
@@ -226,6 +232,10 @@ pub struct ServerConfig {
     pub port: u16,
     #[serde(default = "default_workers")]
     pub workers: usize,
+    #[serde(default)]
+    pub tls_cert_path: Option<String>,
+    #[serde(default)]
+    pub tls_key_path: Option<String>,
 }
 
 impl ServerConfig {
@@ -234,6 +244,8 @@ impl ServerConfig {
             host: default_host(),
             port: default_port(),
             workers: default_workers(),
+            tls_cert_path: None,
+            tls_key_path: None,
         }
     }
 
@@ -252,8 +264,18 @@ impl ServerConfig {
         self
     }
 
+    pub fn with_tls(mut self, cert_path: String, key_path: String) -> Self {
+        self.tls_cert_path = Some(cert_path);
+        self.tls_key_path = Some(key_path);
+        self
+    }
+
     pub fn address(&self) -> String {
         format!("{}:{}", self.host, self.port)
+    }
+
+    pub fn is_tls_enabled(&self) -> bool {
+        self.tls_cert_path.is_some() && self.tls_key_path.is_some()
     }
 }
 
@@ -272,7 +294,22 @@ fn default_port() -> u16 {
 }
 
 fn default_workers() -> usize {
-    4
+    num_cpus::get().max(1)
+}
+
+/// Telemetry configuration
+#[derive(Debug, Clone, Deserialize, Default)]
+pub struct TelemetryConfig {
+    #[serde(default)]
+    pub enabled: bool,
+    #[serde(default)]
+    pub otlp_endpoint: Option<String>,
+    #[serde(default = "default_service_name")]
+    pub service_name: String,
+}
+
+fn default_service_name() -> String {
+    "llm-copilot-agent".to_string()
 }
 
 #[cfg(test)]
@@ -284,7 +321,7 @@ mod tests {
         let config = DatabaseConfig::new("postgres://localhost".to_string())
             .with_pool_size(5, 20);
 
-        assert_eq!(config.url(), "postgres://localhost");
+        assert_eq!(config.url, "postgres://localhost");
         assert_eq!(config.min_connections, 5);
         assert_eq!(config.max_connections, 20);
     }
@@ -294,7 +331,7 @@ mod tests {
         let config = RedisConfig::new("redis://localhost".to_string())
             .with_max_connections(15);
 
-        assert_eq!(config.url(), "redis://localhost");
+        assert_eq!(config.url, "redis://localhost");
         assert_eq!(config.max_connections, 15);
     }
 
@@ -305,7 +342,7 @@ mod tests {
             .with_issuer("test-issuer".to_string())
             .with_audience("test-audience".to_string());
 
-        assert_eq!(config.jwt_secret(), "secret123");
+        assert_eq!(config.jwt_secret, "secret123");
         assert_eq!(config.token_expiry_seconds, 7200);
         assert_eq!(config.issuer, "test-issuer");
         assert_eq!(config.audience, "test-audience");
@@ -314,16 +351,16 @@ mod tests {
     #[test]
     fn test_llm_config_creation() {
         let config = LlmConfig::new(
-            "openai".to_string(),
-            "gpt-4".to_string(),
+            "anthropic".to_string(),
+            "claude-3-sonnet".to_string(),
             "sk-test".to_string(),
         )
         .with_max_tokens(2048)
         .with_temperature(0.5);
 
-        assert_eq!(config.provider, "openai");
-        assert_eq!(config.model, "gpt-4");
-        assert_eq!(config.api_key(), "sk-test");
+        assert_eq!(config.provider, "anthropic");
+        assert_eq!(config.model, "claude-3-sonnet");
+        assert_eq!(config.api_key, "sk-test");
         assert_eq!(config.max_tokens, 2048);
         assert_eq!(config.temperature, 0.5);
     }
@@ -347,6 +384,16 @@ mod tests {
 
         assert_eq!(config.host, "0.0.0.0");
         assert_eq!(config.port, 8080);
-        assert_eq!(config.workers, 4);
+        assert!(config.workers > 0);
+    }
+
+    #[test]
+    fn test_server_tls_config() {
+        let config = ServerConfig::new()
+            .with_tls("/path/to/cert.pem".to_string(), "/path/to/key.pem".to_string());
+
+        assert!(config.is_tls_enabled());
+        assert_eq!(config.tls_cert_path, Some("/path/to/cert.pem".to_string()));
+        assert_eq!(config.tls_key_path, Some("/path/to/key.pem".to_string()));
     }
 }

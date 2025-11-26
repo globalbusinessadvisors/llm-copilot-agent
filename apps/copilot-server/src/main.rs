@@ -14,7 +14,7 @@ use crate::telemetry::init_telemetry;
 #[tokio::main]
 async fn main() -> Result<()> {
     // Load environment variables from .env file if it exists
-    dotenvy::dotenv().ok();
+    dotenv::dotenv().ok();
 
     // Parse command line arguments
     let args = Args::parse();

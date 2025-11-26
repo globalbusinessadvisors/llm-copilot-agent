@@ -1,0 +1,46 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+metadata:
+  name: copilot-production
+
+namespace: copilot-prod
+
+resources:
+  - ../../base
+
+namePrefix: prod-
+
+commonLabels:
+  environment: production
+
+commonAnnotations:
+  app.kubernetes.io/environment: production
+
+replicas:
+  - name: copilot-server
+    count: 3
+
+images:
+  - name: llm-copilot-agent
+    newName: ghcr.io/llm-copilot-agent/copilot-server
+    newTag: v0.1.0
+
+patches:
+  - path: deployment-patch.yaml
+  - path: hpa-patch.yaml
+  - path: ingress-patch.yaml
+
+configMapGenerator:
+  - name: copilot-config
+    behavior: merge
+    literals:
+      - log-level=warn
+      - enable-metrics=true
+      - enable-tracing=true
+
+secretGenerator:
+  - name: copilot-secrets
+    behavior: merge
+    literals:
+      - jwt-secret=REPLACE_WITH_PRODUCTION_SECRET

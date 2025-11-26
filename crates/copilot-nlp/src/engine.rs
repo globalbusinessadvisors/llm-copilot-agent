@@ -4,7 +4,7 @@
 //! entity extraction, and query translation.
 
 use async_trait::async_trait;
-use copilot_core::error::{Error, Result};
+use crate::error::{NlpError, Result};
 use tracing::{debug, info, instrument};
 
 use crate::entity::{Entity, EntityExtractor};
@@ -84,11 +84,11 @@ impl NlpEngineImpl {
     /// Validates the query before processing.
     fn validate_query(&self, query: &str) -> Result<()> {
         if query.trim().is_empty() {
-            return Err(Error::validation("Query cannot be empty"));
+            return Err(NlpError::validation("Query cannot be empty"));
         }
 
         if query.len() > 1000 {
-            return Err(Error::validation("Query is too long (max 1000 characters)"));
+            return Err(NlpError::validation("Query is too long (max 1000 characters)"));
         }
 
         Ok(())
@@ -125,14 +125,11 @@ impl NlpEngineImpl {
 
     /// Calculates similarity between two queries (simple word overlap).
     fn query_similarity(&self, query1: &str, query2: &str) -> f64 {
-        let words1: std::collections::HashSet<_> = query1
-            .to_lowercase()
-            .split_whitespace()
-            .collect();
-        let words2: std::collections::HashSet<_> = query2
-            .to_lowercase()
-            .split_whitespace()
-            .collect();
+        let q1_lower = query1.to_lowercase();
+        let q2_lower = query2.to_lowercase();
+
+        let words1: std::collections::HashSet<&str> = q1_lower.split_whitespace().collect();
+        let words2: std::collections::HashSet<&str> = q2_lower.split_whitespace().collect();
 
         let intersection = words1.intersection(&words2).count();
         let union = words1.union(&words2).count();
@@ -231,7 +228,7 @@ impl NlpEngine for NlpEngineImpl {
             QueryLanguage::TraceQL => {
                 // TraceQL not yet implemented, return a placeholder
                 debug!("TraceQL translation not yet implemented");
-                return Err(Error::validation("TraceQL translation not yet implemented"));
+                return Err(NlpError::unsupported("TraceQL translation not yet implemented"));
             }
         };
 

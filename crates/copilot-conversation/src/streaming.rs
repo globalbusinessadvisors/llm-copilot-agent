@@ -60,8 +60,8 @@ pub struct StreamStatistics {
 /// Streaming response handler
 pub struct StreamingResponse {
     session_id: String,
-    nlp_engine: Arc<NlpEngine>,
-    context_engine: Arc<ContextEngine>,
+    nlp_engine: Arc<dyn NlpEngine>,
+    context_engine: Arc<dyn ContextEngine>,
     history_manager: Arc<RwLock<HistoryManager>>,
     start_time: Option<Instant>,
     first_token_time: Option<Instant>,
@@ -72,8 +72,8 @@ impl StreamingResponse {
     /// Create a new streaming response
     pub fn new(
         session_id: String,
-        nlp_engine: Arc<NlpEngine>,
-        context_engine: Arc<ContextEngine>,
+        nlp_engine: Arc<dyn NlpEngine>,
+        context_engine: Arc<dyn ContextEngine>,
         history_manager: Arc<RwLock<HistoryManager>>,
     ) -> Self {
         Self {
@@ -218,8 +218,8 @@ impl StreamingResponse {
 /// Stream builder for easier configuration
 pub struct StreamBuilder {
     session_id: String,
-    nlp_engine: Arc<NlpEngine>,
-    context_engine: Arc<ContextEngine>,
+    nlp_engine: Arc<dyn NlpEngine>,
+    context_engine: Arc<dyn ContextEngine>,
     history_manager: Arc<RwLock<HistoryManager>>,
     optimize_first_token: bool,
     target_first_token_ms: u64,
@@ -229,8 +229,8 @@ impl StreamBuilder {
     /// Create a new stream builder
     pub fn new(
         session_id: String,
-        nlp_engine: Arc<NlpEngine>,
-        context_engine: Arc<ContextEngine>,
+        nlp_engine: Arc<dyn NlpEngine>,
+        context_engine: Arc<dyn ContextEngine>,
         history_manager: Arc<RwLock<HistoryManager>>,
     ) -> Self {
         Self {
@@ -309,6 +309,8 @@ impl SseFormatter {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use copilot_context::{ContextEngineConfig, ContextEngineImpl};
+    use copilot_nlp::NlpEngineImpl;
 
     #[test]
     fn test_sse_formatting() {
@@ -328,10 +330,13 @@ mod tests {
 
     #[test]
     fn test_statistics() {
+        let context_config = ContextEngineConfig::default();
+        let context_engine = ContextEngineImpl::new(context_config).unwrap();
+
         let mut response = StreamingResponse {
             session_id: "test".to_string(),
-            nlp_engine: Arc::new(NlpEngine::default()),
-            context_engine: Arc::new(ContextEngine::default()),
+            nlp_engine: Arc::new(NlpEngineImpl::default()),
+            context_engine: Arc::new(context_engine),
             history_manager: Arc::new(RwLock::new(HistoryManager::new())),
             start_time: Some(Instant::now()),
             first_token_time: None,

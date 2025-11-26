@@ -1,0 +1,87 @@
+{
+  "name": "@llm-copilot/sdk",
+  "version": "0.1.0",
+  "description": "TypeScript/JavaScript SDK for LLM-CoPilot-Agent",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./workflows": {
+      "import": "./dist/workflows/index.mjs",
+      "require": "./dist/workflows/index.js",
+      "types": "./dist/workflows/index.d.ts"
+    },
+    "./context": {
+      "import": "./dist/context/index.mjs",
+      "require": "./dist/context/index.js",
+      "types": "./dist/context/index.d.ts"
+    },
+    "./conversations": {
+      "import": "./dist/conversations/index.mjs",
+      "require": "./dist/conversations/index.js",
+      "types": "./dist/conversations/index.d.ts"
+    }
+  },
+  "files": [
+    "dist",
+    "src"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "lint": "eslint src --ext .ts",
+    "format": "prettier --write src/**/*.ts",
+    "typecheck": "tsc --noEmit",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "llm",
+    "copilot",
+    "ai",
+    "agent",
+    "sdk",
+    "typescript"
+  ],
+  "author": "LLM-CoPilot-Agent Team",
+  "license": "SEE LICENSE IN LICENSE.md",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/llm-copilot-agent/llm-copilot-agent"
+  },
+  "bugs": {
+    "url": "https://github.com/llm-copilot-agent/llm-copilot-agent/issues"
+  },
+  "homepage": "https://github.com/llm-copilot-agent/llm-copilot-agent#readme",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "dependencies": {
+    "eventsource-parser": "^3.0.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "@vitest/coverage-v8": "^2.0.0",
+    "eslint": "^8.55.0",
+    "eslint-config-prettier": "^9.1.0",
+    "prettier": "^3.1.0",
+    "tsup": "^8.0.0",
+    "typescript": "^5.3.0",
+    "vitest": "^2.0.0"
+  },
+  "peerDependencies": {
+    "typescript": ">=5.0.0"
+  },
+  "peerDependenciesMeta": {
+    "typescript": {
+      "optional": true
+    }
+  }
+}

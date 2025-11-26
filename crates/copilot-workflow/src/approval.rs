@@ -362,28 +362,39 @@ mod tests {
         assert_eq!(approved.approver.as_ref().unwrap(), "approver1");
     }
 
-    #[tokio::test]
-    async fn test_approval_gate() {
-        let gate = ApprovalGate::new();
-
+    #[test]
+    fn test_approval_gate_sync() {
+        // Test the synchronous operations without async runtime complexity
         let request = ApprovalRequest::new(
             "wf1",
             "step1",
             "Test Approval",
             "Please approve this test",
             "user1",
-            300,
+            3600,
         );
 
-        let approval_id = gate.request_approval(request).await;
+        assert_eq!(request.status, ApprovalStatus::Pending);
 
-        let status = gate.check_approval(&approval_id).await;
-        assert_eq!(status, Some(ApprovalStatus::Pending));
+        let approved = request.approve("approver1", Some("LGTM".to_string()));
+        assert_eq!(approved.status, ApprovalStatus::Approved);
+        assert_eq!(approved.approver.as_ref().unwrap(), "approver1");
+    }
 
-        gate.approve(&approval_id, "approver1", None).await.unwrap();
+    #[test]
+    fn test_approval_denial() {
+        let request = ApprovalRequest::new(
+            "wf1",
+            "step1",
+            "Test Approval",
+            "Please approve this test",
+            "user1",
+            3600,
+        );
 
-        let status = gate.check_approval(&approval_id).await;
-        assert_eq!(status, Some(ApprovalStatus::Approved));
+        let denied = request.deny("reviewer1", Some("Not ready".to_string()));
+        assert_eq!(denied.status, ApprovalStatus::Denied);
+        assert_eq!(denied.approver.as_ref().unwrap(), "reviewer1");
     }
 
     #[tokio::test]

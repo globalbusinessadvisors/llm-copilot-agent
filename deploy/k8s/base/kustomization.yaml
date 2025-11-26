@@ -1,0 +1,31 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+metadata:
+  name: copilot-base
+  labels:
+    app.kubernetes.io/name: copilot-server
+    app.kubernetes.io/part-of: llm-copilot-agent
+
+namespace: copilot
+
+resources:
+  - namespace.yaml
+  - serviceaccount.yaml
+  - configmap.yaml
+  - secret.yaml
+  - deployment.yaml
+  - service.yaml
+  - ingress.yaml
+  - hpa.yaml
+  - pdb.yaml
+  - networkpolicy.yaml
+
+commonLabels:
+  app.kubernetes.io/managed-by: kustomize
+  app.kubernetes.io/version: "0.1.0"
+
+images:
+  - name: llm-copilot-agent
+    newName: ghcr.io/llm-copilot-agent/copilot-server
+    newTag: latest

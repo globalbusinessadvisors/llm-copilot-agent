@@ -1,0 +1,27 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets: []
+
+rule_files: []
+
+scrape_configs:
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  - job_name: 'copilot-api'
+    static_configs:
+      - targets: ['api:8080']
+    metrics_path: /metrics
+    scheme: http
+
+  - job_name: 'mock-server'
+    static_configs:
+      - targets: ['mock-server:8081']
+    metrics_path: /metrics
+    scheme: http

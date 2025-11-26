@@ -283,7 +283,8 @@ impl WorkflowEngine {
                 let executions = self.executions.read().await;
                 let execution = executions.get(execution_id)
                     .ok_or_else(|| WorkflowError::NotFound(execution_id.to_string()))?;
-                *execution.cancel_flag.read().await
+                let flag = *execution.cancel_flag.read().await;
+                flag
             };
 
             if cancelled {

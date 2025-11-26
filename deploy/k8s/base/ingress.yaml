@@ -1,0 +1,47 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: copilot-server
+  namespace: copilot
+  labels:
+    app.kubernetes.io/name: copilot-server
+    app.kubernetes.io/component: server
+    app.kubernetes.io/part-of: llm-copilot-agent
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/proxy-body-size: "50m"
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: "300"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "300"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "300"
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+spec:
+  tls:
+    - hosts:
+        - copilot.example.com
+      secretName: copilot-tls
+  rules:
+    - host: copilot.example.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: copilot-server
+                port:
+                  name: http
+          - path: /api
+            pathType: Prefix
+            backend:
+              service:
+                name: copilot-server
+                port:
+                  name: http
+          - path: /grpc
+            pathType: Prefix
+            backend:
+              service:
+                name: copilot-server
+                port:
+                  name: grpc

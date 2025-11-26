@@ -1,0 +1,39 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+metadata:
+  name: copilot-staging
+
+namespace: copilot-staging
+
+resources:
+  - ../../base
+
+namePrefix: staging-
+
+commonLabels:
+  environment: staging
+
+commonAnnotations:
+  app.kubernetes.io/environment: staging
+
+replicas:
+  - name: copilot-server
+    count: 2
+
+images:
+  - name: llm-copilot-agent
+    newName: ghcr.io/llm-copilot-agent/copilot-server
+    newTag: staging
+
+patches:
+  - path: deployment-patch.yaml
+  - path: ingress-patch.yaml
+
+configMapGenerator:
+  - name: copilot-config
+    behavior: merge
+    literals:
+      - log-level=info
+      - enable-metrics=true
+      - enable-tracing=true
