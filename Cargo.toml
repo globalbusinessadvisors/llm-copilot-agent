@@ -16,6 +16,7 @@ members = [
     "crates/copilot-observability",
     "crates/copilot-webhook",
     "crates/copilot-ingestion",
+    "crates/copilot-benchmarks",
     "apps/copilot-server",
     "apps/copilot-cli",
 ]
@@ -45,6 +46,7 @@ copilot-tenant = { path = "crates/copilot-tenant" }
 copilot-observability = { path = "crates/copilot-observability" }
 copilot-webhook = { path = "crates/copilot-webhook" }
 copilot-ingestion = { path = "crates/copilot-ingestion" }
+copilot-benchmarks = { path = "crates/copilot-benchmarks" }
 
 # Async runtime
 tokio = { version = "1.35", features = ["full"] }

@@ -1,6 +1,7 @@
 //! CLI command implementations
 
 pub mod ask;
+pub mod benchmark;
 pub mod chat;
 pub mod completions;
 pub mod config;

@@ -13,6 +13,7 @@ path = "src/main.rs"
 [dependencies]
 copilot-sdk = { path = "../../crates/copilot-sdk" }
 copilot-core = { path = "../../crates/copilot-core" }
+copilot-benchmarks = { path = "../../crates/copilot-benchmarks" }
 
 # CLI framework
 clap = { workspace = true }

@@ -141,6 +141,50 @@ enum Commands {
         #[arg(value_parser = ["bash", "zsh", "fish", "powershell"])]
         shell: String,
     },
+
+    /// Run benchmarks and performance tests
+    #[command(subcommand)]
+    Benchmark(BenchmarkCommands),
+
+    /// Shorthand: Run all benchmarks (alias for 'benchmark run')
+    Run {
+        /// Only run benchmarks matching this filter (by ID prefix)
+        #[arg(short, long)]
+        filter: Option<String>,
+
+        /// Run benchmarks in parallel
+        #[arg(short, long)]
+        parallel: bool,
+
+        /// Skip writing results to disk
+        #[arg(long)]
+        no_write: bool,
+    },
+}
+
+#[derive(Subcommand)]
+enum BenchmarkCommands {
+    /// Run all benchmarks
+    Run {
+        /// Only run benchmarks matching this filter (by ID prefix)
+        #[arg(short, long)]
+        filter: Option<String>,
+
+        /// Run benchmarks in parallel
+        #[arg(short, long)]
+        parallel: bool,
+
+        /// Skip writing results to disk
+        #[arg(long)]
+        no_write: bool,
+    },
+    /// List available benchmarks
+    List,
+    /// Show specific benchmark result
+    Show {
+        /// Benchmark target ID
+        target_id: String,
+    },
 }
 
 #[derive(Subcommand)]
@@ -378,6 +422,32 @@ async fn main() -> ExitCode {
         }
         Commands::Completions { shell } => {
             commands::completions::run(&shell)
+        }
+        Commands::Benchmark(cmd) => {
+            let benchmark_cmd = match cmd {
+                BenchmarkCommands::Run { filter, parallel, no_write } => {
+                    commands::benchmark::BenchmarkCommand::Run {
+                        filter,
+                        parallel,
+                        format: cli.format.clone(),
+                        no_write,
+                    }
+                }
+                BenchmarkCommands::List => commands::benchmark::BenchmarkCommand::List,
+                BenchmarkCommands::Show { target_id } => {
+                    commands::benchmark::BenchmarkCommand::Show { target_id }
+                }
+            };
+            commands::benchmark::run(benchmark_cmd, &cli.format).await
+        }
+        Commands::Run { filter, parallel, no_write } => {
+            let benchmark_cmd = commands::benchmark::BenchmarkCommand::Run {
+                filter,
+                parallel,
+                format: cli.format.clone(),
+                no_write,
+            };
+            commands::benchmark::run(benchmark_cmd, &cli.format).await
         }
     };
 
