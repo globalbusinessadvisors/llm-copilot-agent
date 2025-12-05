@@ -6,6 +6,12 @@ pub mod orchestrator;
 pub mod circuit_breaker;
 pub mod retry;
 
+// Phase 2B: LLM-Dev-Ops Ecosystem Adapters
+pub mod llm_devops;
+
+// Phase 2B: Benchmark Runtime Integrations (NOT compile-time dependencies)
+pub mod benchmarks;
+
 pub use traits::{
     ModuleAdapter,
     TestBenchAdapter,
@@ -20,6 +26,36 @@ pub use incident::IncidentClient;
 pub use orchestrator::OrchestratorClient;
 pub use circuit_breaker::{CircuitBreaker, CircuitBreakerConfig, CircuitState};
 pub use retry::{RetryPolicy, with_retry};
+
+// Re-export LLM-Dev-Ops adapters
+pub use llm_devops::{
+    LLMDevOpsConfig, LLMDevOpsHub,
+    SimulatorAdapter, SimulatorClient,
+    RouterAdapter, RouterClient,
+    CostOpsAdapter, CostOpsClient,
+    MemoryGraphAdapter, MemoryGraphClient,
+    LLMOrchestratorAdapter, LLMOrchestratorClient,
+    LLMObservatoryAdapter, LLMObservatoryClient,
+    SentinelAdapter, SentinelClient,
+    ShieldAdapter, ShieldClient,
+    ConnectorHubAdapter, ConnectorHubClient,
+    DataVaultAdapter, DataVaultClient,
+    PolicyEngineAdapter, PolicyEngineClient,
+    GovernanceDashboardAdapter, GovernanceDashboardClient,
+    AutoOptimizerAdapter, AutoOptimizerClient,
+    AnalyticsHubAdapter, AnalyticsHubClient,
+    RegistryAdapter, RegistryClient,
+    MarketplaceAdapter, MarketplaceClient,
+    ResearchLabAdapter, ResearchLabClient,
+};
+
+// Re-export benchmark runtime adapters
+pub use benchmarks::{
+    BenchmarkRuntimeConfig, BenchmarkRuntimeHub,
+    BenchmarkResult, BenchmarkCorpus, CorpusSource,
+    TestBenchRuntimeAdapter, TestBenchRuntimeClient,
+    BenchmarkExchangeAdapter, BenchmarkExchangeClient,
+};
 
 use std::fmt;
 use thiserror::Error;
